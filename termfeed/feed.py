@@ -12,6 +12,7 @@ Usage:
     feed -t [<category>]
     feed -D <category>
     feed -R
+    feed -o <rss-url>
     feed (-h | --help)
     feed --version
 
@@ -24,6 +25,7 @@ Options:
     -t            See the stored categories in your library, or list the URLs stored under <category> in your library.
     -D TOPIC      Remove entire cateogry (and its urls) from your library.
     -R            Rebuild the library from the url.py
+    -o            Raw print of rss topic and exit
     -h --help     Show this screen.
 
 """
@@ -72,10 +74,11 @@ def open_page(url, title):
     webbrowser.open(url)
 
 
-def print_feed(zipped):
+def print_feed(zipped,onlyDump=False):
 
     for num, post in zipped.items():
-        print(bcolors.OKGREEN + '[{}] '.format(num) + bcolors.ENDC, end='')
+        if not onlyDump:
+          print(bcolors.OKGREEN + '[{}] '.format(num) + bcolors.ENDC, end='')
         print('{}'.format(post.title.encode('utf8')))
 
 
@@ -140,10 +143,9 @@ def parse_feed(url):
         return None
 
 
-def fetch_feeds(urls):
-
+def fetch_feeds(urls,onlyDump=False):
     for i, url in enumerate(urls):
-
+ 
         d = parse_feed(url)
 
         if d is None:
@@ -151,16 +153,18 @@ def fetch_feeds(urls):
 
         # feeds source
         l = len(urls) - 1
-        print(
+        
+        if not onlyDump:
+          print(
             bcolors.HEADER + "\n     {}/{} SOURCE>> {}\n".format(i, l, url) + bcolors.ENDC)
 
         # print out feeds
         zipped = dict(enumerate(d.entries))
 
         def recurse(zipped):
-
-            print_feed(zipped)
-
+            print_feed(zipped,onlyDump)
+            if onlyDump:
+               return
             kb = _continue()  # keystroke listener
 
             if kb:
@@ -185,7 +189,6 @@ def fetch_feeds(urls):
                 recurse(zipped)
 
         recurse(zipped)
-
 
 def topic_choice(browse):
 
@@ -239,6 +242,8 @@ def main():
     remove = args['-D']
     tags = args['-t']
     rebuild = args['-R']
+    onlyDump = args['-o']
+
 
     fetch = True
 
@@ -275,7 +280,7 @@ def main():
         dbop.rebuild_library()
 
     if fetch:
-        fetch_feeds(urls)
+        fetch_feeds(urls,onlyDump)
 
 # start
 if __name__ == '__main__':

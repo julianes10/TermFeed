@@ -1,5 +1,15 @@
 TermFeed
 ====
+## Added features
+
+More options added:
+
+Just print raw header lines from a url rss and exit
+
+Why? just use TermFeed in a pipe for later process
+Example: feed -o <rss> | head -n2 | festival -tts 
+
+## ORIGINAL README:
 
 [![PyPI version](https://badge.fury.io/py/termfeed.svg)](http://badge.fury.io/py/termfeed)
 
